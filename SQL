@@ -1,0 +1,54 @@
+-- Identify which sources offer hotels with better ratings or lower prices.
+
+select Avg(rating) as average_rating,avg(price) as average_price, SOURCE
+FROM riyadh_hotels
+group by SOURCE
+order by SOURCE, average_rating ,average_price DESC ;
+
+-- Best rating = StRegis.com
+-- Lowest Price = Expedia
+
+-- Question: What is the distribution of hotel prices in specified price ranges (e.g., <500, 500-1000, >1000)?
+
+select 
+    CASE 
+        WHEN price < 500 THEN '<500'
+        WHEN price BETWEEN 500 AND 1000 THEN '500-1000'
+        ELSE '>1000'
+    END AS price_range, 
+    COUNT(*) AS hotel_count
+FROM riyadh_hotels
+WHERE price IS NOT NULL
+group by price_range
+order by hotel_count DESC;
+
+
+-- Which hotels have the highest ratings, and what are their prices and sources?
+
+select hotel_name, price, SOURCE, rating
+FROM riyadh_hotels
+WHERE rating = (SELECT MAX(rating) FROM riyadh_hotels)
+order by price DESC;
+
+-- How many hotels have a price higher than the base price, and what is the average difference?
+
+select 
+COUNT(*) as hotels_with_price_higher_than_base, 
+avg(price - base_price) as average_difference
+FROM riyadh_hotels
+WHERE price > base_price;
+
+-- What are the most common check-in and check-out dates in the dataset?
+SELECT checkIn, 
+    COUNT(*) AS checkin_count
+FROM riyadh_hotels
+group by checkIn
+order by checkin_count DESC
+LIMIT 5;
+
+select checkOut, 
+    COUNT(*) AS checkout_count
+FROM riyadh_hotels
+group by checkOut
+order by checkout_count DESC
+LIMIT 5;
